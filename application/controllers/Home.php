@@ -12,9 +12,6 @@ class Home extends CI_Controller
 
 	function AddEntry()
 	{
-
-
-
 		$user_validation_rules = array(
 			array('field' => 'f_name',
 				'label' => 'Firstname',
@@ -183,39 +180,59 @@ class Home extends CI_Controller
 
 		if ($this->input->post('submit'))
 		{
-			$this->getSelectedContactDetails($_POST['master_id']);
+
+			$master_id = $this->input->post('master_id');
+			$data2['contact_details'] = $this->AddressBook->getSelectedContactDetailsForUpdate($master_id);
+
+
+			//View the selected contacts dropdown 
+
+			$this->load->view('UpdateContactDetails', $data2, $master_id);
+
+			if (isset($_POST['update']))
+			{
+
+				$this->AddressBook->updateAddressDetails($master_id, $_POST['address'], $_POST['city'], $_POST['town'], $_POST['add_type']);
+				$this->AddressBook->updateTelephoneDetails($master_id, $_POST['tel_number'], $_POST['tel_type']);
+				$this->AddressBook->updateFaxDetails($master_id, $_POST['fax'], $_POST['fax_type']);
+				$this->AddressBook->updateEmailDetails($master_id, $_POST['email'], $_POST['email_type']);
+				$this->AddressBook->updatePersonalNotesDetails($master_id, $_POST['note']);
+
+				$this->load->view('UpdateEntry', $data);
+			}
 		}
 
-//		 $master_id = $this->input->post('master_id');
-//		  
-//		  $this->AddressBook->UpdateEntry($master_id);
-//		  
-//		  	$this->load->view('UpdateEntry', $data);
-//			redirect($this->uri->uri_string());
+	function getSelectedContactDetails() {
+		 $master_id = $this->input->post('master_id');
+		$data2['master_id'] = $master_id;
+		$data2['contact_details'] = $this->AddressBook->getSelectedContactDetailsForUpdate($master_id);
+
+		
+		//View the selected contacts dropdown 
+        		
+	   $this->load->view('UpdateContactDetails', $data2);	
+	   
+		if (isset($_POST['update'])) {
+	
+		$this->AddressBook->updateAddressDetails($master_id,$_POST['address'],$_POST['city'],$_POST['town'],$_POST['add_type']);
+		$this->AddressBook->updateTelephoneDetails($master_id,$_POST['tel_number'],$_POST['tel_type']);
+		$this->AddressBook->updateFaxDetails($master_id,$_POST['fax'],$_POST['fax_type']);
+		$this->AddressBook->updateEmailDetails($master_id,$_POST['email'],$_POST['email_type']);
+		$this->AddressBook->updatePersonalNotesDetails($master_id,$_POST['note']);
+		}
+         	
 	}
 
-			function getSelectedContactDetails($master_id)
+		function UpdateSelectedContact($master_id)
 		{
-		$this->load->model('AddressBook');
-	    // new method 
-		
-
-        //store id in array
-	    $data2['master_id'] = $master_id;
-        $data2['contact_details'] = $this->AddressBook->getSelectedContactDetailsForUpdate($master_id);
-		
-        //store result of getSelectedContactDetailsForUpdate from addressbook
-//        $data
-        
-
-
-      //load the view
-       //$this->load->view('UpdateEntry', $data);
-        //if (isset($_POST['update'])) {​​​​ //if updated
-         //do adressbook updates in each table
+			$this->load->model('AddressBook');
+			$this->AddressBook->updateAddressDetails($master_id, $_POST['address'], $_POST['city'], $_POST['town'], $_POST['add_type']);
+			$this->AddressBook->updateTelephoneDetails($master_id, $_POST['tel_number'], $_POST['tel_type']);
+			$this->AddressBook->updateFaxDetails($master_id, $_POST['fax'], $_POST['fax_type']);
+			$this->AddressBook->updateEmailDetails($master_id, $_POST['email'], $_POST['email_type']);
+			$this->AddressBook->updatePersonalNotesDetails($master_id, $_POST['note']);
 		}
-		
 
 	}
 
-
+}

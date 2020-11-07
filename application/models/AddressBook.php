@@ -239,9 +239,209 @@ class AddressBook extends CI_Model
 		
 	}
 	
-    function getSelectedContactDetailsUpdate(){
+   function UpdateContact($contact_details) {
 		
+			$this->updateAddressDetails($contact_details);
+			$this->updateTelephoneDetails($contact_details);
+			$this->updateFaxDetails($contact_details);
+			$this->updateEmailDetails($contact_details);
+			$this->updatePersonalNotesDetails($contact_details);
 	}
+	
+	//-------------------------------------------------------------------------
+	
+    function updateAddressDetails($update_id,$address, $city, $town, $address_type) {
+		//Updates the Address details to the Address Table
+
+
+        //Update address details from form into associative array with keys same name as database fields        
+        $address_data['date_modified'] = date('Y-m-d');
+        $address_data['address'] = $address;
+        $address_data['city'] = $city;
+        $address_data['town'] = $town;
+        $address_data['type'] = $address_type;
+
+		$this->db->where('master_id', $update_id);
+        $this->db->update('address', $address_data);
+    }
+
+    //Adds new Telephone Details to the Telephone Table
+    function updateTelephoneDetails($update_id,$telephone_number, $telephone_type) {
+
+        //Inserts telephone details from form into associative array with keys same name as database fields
+        $tel_data['date_modified'] = date('Y-m-d');
+        $tel_data['telephoneNo'] = $telephone_number;
+        $tel_data['type'] = $telephone_type;
+
+        $this->db->where('master_id', $update_id);
+        $this->db->update('telephone', $tel_data);
+    }
+
+    //Adds new Email details to the Email table
+    function updateEmailDetails($update_id,$email, $email_type) {
+		
+        //Inserts email details from form into associative array with keys same name as database fields        
+        $email_data['date_modified'] = date('Y-m-d');
+        $email_data['email'] = $email;
+        $email_data['type'] = $email_type;
+
+        $this->db->where('master_id', $update_id);
+        $this->db->update('email', $email_data);
+    }
+
+	
+    //Update Fax table with new fax details if changed
+    function updateFaxDetails($update_id,$fax_number, $fax_type) {
+
+        //Inserts email details from form into associative array with keys same name as database fields        
+        $fax_data['date_modified'] = date('Y-m-d');
+        $fax_data['fax_number'] = $fax_number;
+        $fax_data['type'] = $fax_type;
+
+        $this->db->where('master_id', $update_id);
+        $this->db->update('fax', $fax_data);
+    }
+
+    //Update PersonalNotes table with new note details if changed
+    function updatePersonalNotesDetails($update_id,$note) {
+
+        //Inserts note details from form into associative array with keys same name as database fields        
+        $note_data['date_modified'] = date('Y-m-d');
+        $note_data['note'] = $note; 
+		
+        $this->db->where('master_id', $update_id);
+        $this->db->update('personal_notes', $note_data);
+    }
+	
+    //Select the contact name details for the selected contact
+    function getSelectedContactDetailsForUpdate($master_id) {
+
+        $display_block2 = "";
+
+            //Get the Contact Address Details
+            $this->db->select("address, city, town, type", false);
+            $query = $this->db->get_where('address', array('master_id' => $master_id));
+
+            if ($query->num_rows() > 0) {
+                $result = $query->row();
+                $display_block2 .= "<strong>Address: </strong>";
+                $display_block2 .= "<input type=\"text\" name=\"address\" size=\"55\" maxlength=\"60\" value=$result->address></p>";
+                $display_block2 .= "<strong>City:  </strong>";
+                $display_block2 .= "<input type=\"text\" name=\"city\" size=\"20\" maxlength=\"50\" value=$result->city></p>";
+                $display_block2 .= "<strong>Town:  </strong>";
+                $display_block2 .= "<input type=\"text\" name=\"town\" size=\"20\" maxlength=\"30\" value=$result->town></p>";
+				$display_block2 .= "<strong>Address Type: </strong>";
+	
+				if ($result->type = 'home') {
+					$display_block2 .="<input type=\"radio\" name=\"add_type\" value=\"home\" checked> home
+									<input type=\"radio\" name=\"add_type\" value=\"work\"> work
+									<input type=\"radio\" name=\"add_type\" value=\"other\"> other</p>";
+				} else if ($result->type = 'work') {
+					$display_block2 .="<input type=\"radio\" name=\"add_type\" value=\"home\"> home
+									<input type=\"radio\" name=\"add_type\" value=\"work\" checked> work
+									<input type=\"radio\" name=\"add_type\" value=\"other\"> other</p>";
+				}
+				else {
+				 	$display_block2 .="<input type=\"radio\" name=\"add_type\" value=\"home\"> home
+									<input type=\"radio\" name=\"add_type\" value=\"work\"> work
+									<input type=\"radio\" name=\"add_type\" value=\"other\" checked> other</p>";
+				}
+			}
+			
+			//Get the Contact Telephone Details
+            $this->db->select("telephoneNo, type", false);
+
+            $query = $this->db->get_where('telephone', array('master_id' => $master_id));
+
+            if ($query->num_rows() > 0) {
+                $result = $query->row();                
+                $display_block2 .= "<strong>Telephone:  </strong>";
+                $display_block2 .= "<input type=\"text\" name=\"tel_number\" size=\"18\" maxlength=\"45\" value=$result->telephoneNo></p>";               
+   				$display_block2 .= "<strong>Telephone Type: </strong>";
+	         	
+				if ($result->type = 'home') {
+					$display_block2 .="<input type=\"radio\" name=\"tel_type\" value=\"home\" checked> home
+									<input type=\"radio\" name=\"tel`_type\" value=\"work\"> work
+									<input type=\"radio\" name=\"tel_type\" value=\"other\"> other</p>";
+				} else if ($result->type = 'work') {
+					$display_block2 .="<input type=\"radio\" name=\"tel_type\" value=\"home\"> home
+									<input type=\"radio\" name=\"tel_type\" value=\"work\" checked> work
+									<input type=\"radio\" name=\"tel_type\" value=\"other\"> other</p>";
+				}
+				else {
+					
+				 	$display_block2 .="<input type=\"radio\" name=\"tel_type\" value=\"home\"> home
+									<input type=\"radio\" name=\"tel_type\" value=\"work\"> work
+									<input type=\"radio\" name=\"tel_type\" value=\"other\" checked> other</p>";
+				}		
+			}
+
+            //Get the Contact Email Details
+            $this->db->select("email, type", false);
+ 
+            $query = $this->db->get_where('email', array('master_id' => $master_id));
+
+            if ($query->num_rows() > 0) {
+                $result = $query->row();
+                $display_block2 .= "<strong>Email:  </strong>";
+                $display_block2 .= "<input type=\"text\" name=\"email\" size=\"30\" maxlength=\"150\" value=$result->email></p>";
+    			$display_block2 .= "<strong>Email Type: </strong>";
+	
+            	if ($result->type = 'home') {
+					$display_block2 .="<input type=\"radio\" name=\"email_type\" value=\"home\" checked> home
+									<input type=\"radio\" name=\"email_type\" value=\"work\"> work
+									<input type=\"radio\" name=\"email_type\" value=\"other\"> other</p>";
+				} else if ($result->type = 'work') {
+					$display_block2 .="<input type=\"radio\" name=\"email_type\" value=\"home\"> home
+									<input type=\"radio\" name=\"email_type\" value=\"work\" checked> work
+									<input type=\"radio\" name=\"email_type\" value=\"other\"> other</p>";
+				}
+				else {
+				 	$display_block2 .="<input type=\"radio\" name=\"email_type\" value=\"home\"> home
+									<input type=\"radio\" name=\"email_type\" value=\"work\"> work
+									<input type=\"radio\" name=\"email_type\" value=\"other\" checked> other</p>";
+				}
+			}
+			
+			//Get the fax Details
+            $this->db->select("fax_number, type", false);
+ 
+            $query = $this->db->get_where('fax', array('master_id' => $master_id));
+
+            if ($query->num_rows() > 0) {
+                $result = $query->row();
+                $display_block2 .= "<strong>Fax:  </strong>";
+                $display_block2 .= "<input type=\"text\" name=\"fax\" size=\"30\" maxlength=\"150\" value=$result->fax_number></p>";
+				$display_block2 .= "<strong>Fax Type: </strong>";
+	
+            	if ($result->type = 'home') {
+					$display_block2 .="<input type=\"radio\" name=\"fax_type\" value=\"home\" checked> home
+									<input type=\"radio\" name=\"fax_type\" value=\"work\"> work
+									<input type=\"radio\" name=\"fax_type\" value=\"other\"> other</p>";
+				} else if ($result->type = 'work') {
+					$display_block2 .="<input type=\"radio\" name=\"fax_type\" value=\"home\"> home
+									<input type=\"radio\" name=\"fax_type\" value=\"work\" checked> work
+									<input type=\"radio\" name=\"fax_type\" value=\"other\"> other</p>";
+				}
+				else {
+				 	$display_block2 .="<input type=\"radio\" name=\"fax_type\" value=\"home\"> home
+									<input type=\"radio\" name=\"fax_type\" value=\"work\"> work
+									<input type=\"radio\" name=\"fax_type\" value=\"other\" checked> other</p>";
+				}
+			}
+			
+			//Get the personal_notes Details
+            $this->db->select("note", false);
+ 
+            $query = $this->db->get_where('personal_notes', array('master_id' => $master_id));
+
+            if ($query->num_rows() > 0) {
+                $result = $query->row();
+                $display_block2 .= "<strong>Personal Notes:  </strong>";
+                $display_block2 .= "<input type=\"text\" name=\"note\" size=\"80\" maxlength=\"80\" value=$result->note></p>";
+            }	 
+		return $display_block2;
+    }
 
 }
 ?>
